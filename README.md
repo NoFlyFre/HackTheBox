@@ -19,13 +19,13 @@ Ogni file `.md` rappresenta il walkthrough completo di una macchina.
 
 *(L'elenco verrà aggiornato man mano che aggiungo nuovi writeup)*
 
-⸻
+---
 
 🧠 Note personali
 
 Questo archivio è un modo per consolidare ciò che imparo e per aiutare chi si trova su percorsi simili nel mondo della sicurezza informatica.
 
-⸻
+---
 
 🏁 Credits
 	•	🧑‍💻 Author: NoFlyFre
