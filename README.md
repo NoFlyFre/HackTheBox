@@ -28,9 +28,6 @@ I walkthrough sono formattati per essere compatibili con **Obsidian**, ma puoi l
   ```bash
   git clone https://github.com/NoFlyFre/htb_walkthroughs.git
 
-	•	Apri i file Markdown con Obsidian o qualsiasi editor di testo
-	•	Segui i passaggi descritti: enumeration → exploitation → privesc → flags
-
 ⸻
 
 🛠 Tecnologie e strumenti usati
