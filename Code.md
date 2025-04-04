@@ -66,7 +66,7 @@ john --show --format=Raw-MD5 hashes.txt
 
 Result:
 ```
-development:?
+development:development
 martin:nafeelswordsmaster
 ```
 
