@@ -8,7 +8,6 @@ Qui troverai report tecnici dettagliati scritti in Markdown, organizzati per nom
 ## 📂 Struttura del repository
 
 Ogni file `.md` rappresenta il walkthrough completo di una macchina.  
-I walkthrough sono formattati per essere compatibili con **Obsidian**, ma puoi leggerli anche direttamente da GitHub.
 
 ---
 
@@ -19,22 +18,6 @@ I walkthrough sono formattati per essere compatibili con **Obsidian**, ma puoi l
 | `CODE`   | 🟢 Easy     | Web, PrivEsc | [CODE.md](./Code.md) |
 
 *(L'elenco verrà aggiornato man mano che aggiungo nuovi writeup)*
-
----
-
-## 🧭 Come usare i walkthrough
-
-- Clona il repository:
-  ```bash
-  git clone https://github.com/NoFlyFre/htb_walkthroughs.git
-
-⸻
-
-🛠 Tecnologie e strumenti usati
-	•	nmap, gobuster, john, burpsuite
-	•	Python, Flask, SQLAlchemy, sqlite3
-	•	Linux privilege escalation, path traversal, file abuse
-	•	Markdown + Obsidian + GitHub Pages
 
 ⸻
 
