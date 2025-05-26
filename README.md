@@ -13,12 +13,14 @@ Ogni file `.md` rappresenta il walkthrough completo di una macchina.
 
 ## 📋 Elenco Walkthrough
 
-| Macchina   | Difficoltà | Categorie                     | Link                         |
-| ---------- | ---------- | ----------------------------- | ---------------------------- |
-| `DOG`      | 🟡 Medium  | Web, CMS, RCE, PrivEsc        | [DOG.md](./Dog.md)           |
-| `CODE`     | 🟢 Easy    | Web, PrivEsc                  | [CODE.md](./Code.md)         |
-| `TITANIC`  | 🟢 Easy    | Web, LFI, RCE                 | [TITANIC.md](./Titanic.md)   |
-| `PLANNING` | 🟡 Medium  | Web, Grafana, Docker, PrivEsc | [PLANNING.md](./Planning.md) |
+| Macchina     | Difficoltà | Categorie                          | Link                           |
+| ------------ | ---------- | ---------------------------------- | ------------------------------ |
+| `DOG`        | 🟡 Medium  | Web, CMS, RCE, PrivEsc             | [DOG.md](./Dog.md)             |
+| `CODE`       | 🟢 Easy    | Web, PrivEsc                       | [CODE.md](./Code.md)           |
+| `TITANIC`    | 🟢 Easy    | Web, LFI, RCE                      | [TITANIC.md](./Titanic.md)     |
+| `PLANNING`   | 🟡 Medium  | Web, Grafana, Docker, PrivEsc      | [PLANNING.md](./Planning.md)   |
+| `NOCTURNAL`  | 🟡 Medium  | Web, File Inclusion, RCE, PrivEsc  | [NOCTURNAL.md](./Nocturnal.md) |
+
 
 *(L'elenco verrà aggiornato man mano che aggiungo nuovi writeup)*
 
