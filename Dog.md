@@ -1,3 +1,4 @@
+```txt
                  .-'''-.              
 _______         '   _    \            
 \  ___ `'.    /   /` '.   \           
@@ -138,3 +139,4 @@ Usa queste informazioni in modo responsabile.
 
         .: Knowledge, Skillz, Root :.
           .: Stay curious! :.
+```

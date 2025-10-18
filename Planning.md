@@ -1,3 +1,4 @@
+```txt
  888888ba  dP                            oo                   
  88    `8b 88                                                 
 a88aaaa8P' 88 .d8888b. 88d888b. 88d888b. dP 88d888b. .d8888b. 
@@ -134,3 +135,4 @@ Usa queste informazioni in modo responsabile.
 
         .: Knowledge, Skillz, Root :.
           .: Stay curious! :.
+```

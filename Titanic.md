@@ -1,3 +1,4 @@
+```txt
 ooooooooooooo  o8o      .                          o8o            
 8'   888   `8  `"'    .o8                          `"'            
      888      oooo  .o888oo  .oooo.   ooo. .oo.   oooo   .ooooo.  
@@ -160,3 +161,4 @@ Usa queste informazioni in modo responsabile.
 
         .: Knowledge, Skillz, Root :.
           .: Stay curious! :.
+```

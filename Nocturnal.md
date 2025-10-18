@@ -1,4 +1,4 @@
-                                                      
+```txt                                                      
 o    o                 o                            8 
 8b   8                 8                            8 
 8`b  8 .oPYo. .oPYo.  o8P o    o oPYo. odYo. .oPYo. 8 
@@ -165,3 +165,4 @@ Usa queste informazioni in modo responsabile.
 
         .: Knowledge, Skillz, Root :.
           .: Stay curious! :.
+```

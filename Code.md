@@ -1,3 +1,4 @@
+```txt
   /$$$$$$                  /$$          
  /$$__  $$                | $$          
 | $$  \__/  /$$$$$$   /$$$$$$$  /$$$$$$ 
@@ -179,3 +180,4 @@ Usa queste informazioni in modo responsabile.
 
         .: Knowledge, Skillz, Root :.
           .: Stay curious! :.
+```
