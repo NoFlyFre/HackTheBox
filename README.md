@@ -21,9 +21,7 @@
 -------------------------------------------------------------------------------
 Benvenutə nel mio archivio underground di walkthrough per le macchine
 Hack The Box (HTB). Qui trovi report tecnici in Markdown, strutturati
-per macchina, con spiegazioni passo-passo, comandi chiave e flag.
-
-Formato: stile Phrack (sezioni numerate, separatori, toni asciutti).
+per macchina, con spiegazioni passo-passo.
 
 
 ----[ 0x02 ]  STRUTTURA DEL REPO
