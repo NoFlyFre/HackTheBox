@@ -1,79 +1,79 @@
 ```txt
-#                                                                                                             
-#    @@@  @@@   @@@@@@    @@@@@@@  @@@  @@@     @@@@@@@  @@@  @@@  @@@@@@@@     @@@@@@@    @@@@@@   @@@  @@@  
-#    @@@  @@@  @@@@@@@@  @@@@@@@@  @@@  @@@     @@@@@@@  @@@  @@@  @@@@@@@@     @@@@@@@@  @@@@@@@@  @@@  @@@  
-#    @@!  @@@  @@!  @@@  !@@       @@!  !@@       @@!    @@!  @@@  @@!          @@!  @@@  @@!  @@@  @@!  !@@  
-#    !@!  @!@  !@!  @!@  !@!       !@!  @!!       !@!    !@!  @!@  !@!          !@   @!@  !@!  @!@  !@!  @!!  
-#    @!@!@!@!  @!@!@!@!  !@!       @!@@!@!        @!!    @!@!@!@!  @!!!:!       @!@!@!@   @!@  !@!   !@@!@!   
-#    !!!@!!!!  !!!@!!!!  !!!       !!@!!!         !!!    !!!@!!!!  !!!!!:       !!!@!!!!  !@!  !!!    @!!!    
-#    !!:  !!!  !!:  !!!  :!!       !!: :!!        !!:    !!:  !!!  !!:          !!:  !!!  !!:  !!!   !: :!!   
-#    :!:  !:!  :!:  !:!  :!:       :!:  !:!       :!:    :!:  !:!  :!:          :!:  !:!  :!:  !:!  :!:  !:!  
-#    ::   :::  ::   :::   ::: :::   ::  :::        ::    ::   :::   :: ::::      :: ::::  ::::: ::   ::  :::  
-#     :   : :   :   : :   :: :: :   :   :::        :      :   : :  : :: ::      :: : ::    : :  :    :   ::   
-#                                                                                                             
 
-===============================================================================
-                       Hack The Box — Walkthrough Repository
-===============================================================================
+    @@@  @@@   @@@@@@    @@@@@@@  @@@  @@@     @@@@@@@  @@@  @@@  @@@@@@@@     @@@@@@@    @@@@@@   @@@  @@@
+    @@@  @@@  @@@@@@@@  @@@@@@@@  @@@  @@@     @@@@@@@  @@@  @@@  @@@@@@@@     @@@@@@@@  @@@@@@@@  @@@  @@@
+    @@!  @@@  @@!  @@@  !@@       @@!  !@@       @@!    @@!  @@@  @@!          @@!  @@@  @@!  @@@  @@!  !@@
+    !@!  @!@  !@!  @!@  !@!       !@!  @!!       !@!    !@!  @!@  !@!          !@   @!@  !@!  @!@  !@!  @!!
+    @!@!@!@!  @!@!@!@!  !@!       @!@@!@!        @!!    @!@!@!@!  @!!!:!       @!@!@!@   @!@  !@!   !@@!@!
+    !!!@!!!!  !!!@!!!!  !!!       !!@!!!         !!!    !!!@!!!!  !!!!!:       !!!@!!!!  !@!  !!!    @!!!
+    !!:  !!!  !!:  !!!  :!!       !!: :!!        !!:    !!:  !!!  !!:          !!:  !!!  !!:  !!!   !: :!!
+    :!:  !:!  :!:  !:!  :!:       :!:  !:!       :!:    :!:  !:!  :!:          :!:  !:!  :!:  !:!  :!:  !:!
+    ::   :::  ::   :::   ::: :::   ::  :::        ::    ::   :::   :: ::::      :: ::::  ::::: ::   ::  :::
+     :   : :   :   : :   :: :: :   :   :::        :      :   : :  : :: ::      :: : ::    : :  :    :   ::
 
+```
 
-----[ 0x01 ]  ABSTRACT
--------------------------------------------------------------------------------
-Benvenutə nel mio archivio underground di walkthrough per le macchine
-Hack The Box (HTB). Qui trovi report tecnici in Markdown, strutturati
-per macchina, con spiegazioni passo-passo.
+# Hack The Box — Walkthrough Repository
 
+Stile asciutto, taglio tecnico, vibe Phrack. Writeup in Markdown per macchine HTB, con focus su root cause e catena di exploit riproducibile.
 
-----[ 0x02 ]  STRUTTURA DEL REPO
--------------------------------------------------------------------------------
-Ogni file `.md` è un writeup completo di una singola macchina HTB:
+## Indice
+
+- [0x01 ABSTRACT](#0x01--abstract)
+- [0x02 STRUTTURA](#0x02--struttura-del-repo)
+- [0x03 ELENCO](#0x03--elenco-walkthrough-aggiornato)
+- [0x04 USO](#0x04--uso)
+- [0x05 NOTE](#0x05--note-personali)
+- [0x06 DISCLAIMER](#0x06--disclaimer)
+- [0x07 CREDITI](#0x07--credits--contatti)
+- [0x08 LINGUA](#0x08--lingua)
+
+## ----[ 0x01 ] ABSTRACT
+
+Archivio di walkthrough per Hack The Box. Ogni documento tratta enum → exploit → privesc → root, con spiegazioni essenziali e comandi pronti all’uso.
+
+## ----[ 0x02 ] STRUTTURA DEL REPO
+
+Ogni file `.md` è il writeup di una singola macchina HTB:
 
     <MachineName>.md     # walkthrough tecnico (enum → exploit → privesc → root)
 
-----[ 0x03 ]  ELENCO WALKTHROUGH (AGGIORNATO)
--------------------------------------------------------------------------------
-| Macchina     | Difficoltà | Categorie                          | Link                             |
-|--------------|------------|------------------------------------|----------------------------------|
-| CODE TWO     | Easy       | Web, JS2Py Escape, RCE, PrivEsc    | [CODE_TWO.md](./CodeTwo.md)      |
-| CODE         | Easy       | Web, PrivEsc                       | [CODE.md](./Code.md)             |
-| TITANIC      | Easy       | Web, LFI, RCE                      | [TITANIC.md](./Titanic.md)       |
-| PLANNING     | Medium     | Web, Grafana, Docker, PrivEsc      | [PLANNING.md](./Planning.md)     |
-| NOCTURNAL    | Medium     | Web, File Inclusion, RCE, PrivEsc  | [NOCTURNAL.md](./Nocturnal.md)   |
-| DOG          | Medium     | Web, CMS, RCE, PrivEsc             | [DOG.md](./Dog.md)               |
+## ----[ 0x03 ] ELENCO WALKTHROUGH (AGGIORNATO)
 
+| Macchina  | Difficoltà | Categorie                         | Link                           |
+| --------- | ---------- | --------------------------------- | ------------------------------ |
+| Code Two  | Easy       | Web, JS2Py Escape, RCE, PrivEsc   | [CodeTwo.md](./CodeTwo.md)     |
+| Code      | Easy       | Web, PrivEsc                      | [Code.md](./Code.md)           |
+| Titanic   | Easy       | Web, LFI, RCE                     | [Titanic.md](./Titanic.md)     |
+| Planning  | Medium     | Web, Grafana, Docker, PrivEsc     | [Planning.md](./Planning.md)   |
+| Nocturnal | Medium     | Web, File Inclusion, RCE, PrivEsc | [Nocturnal.md](./Nocturnal.md) |
+| Dog       | Medium     | Web, CMS, RCE, PrivEsc            | [Dog.md](./Dog.md)             |
 
-----[ 0x04 ]  NOTE PERSONALI
--------------------------------------------------------------------------------
-Questo archivio consolida quanto imparo e offre tracce ripetibili per chi
-studia offensive security. Obiettivo: chiarezza operativa, rigore tecnico,
-zero fumo. Dove possibile: spiegazione della root cause, non solo i comandi.
+## ----[ 0x04 ] USO
 
+- Leggi il `.md` della macchina d’interesse e segui le sezioni numerate.
+- I blocchi comando sono pensati per copy/paste; adatta IP/interfacce.
+- Le sezioni “Root Cause” chiariscono il perché dietro l’exploit, non solo il come.
 
-----[ 0x05 ]  DISCLAIMER
--------------------------------------------------------------------------------
-Tutti i contenuti sono per scopi educativi ed ethical hacking. Utilizza le
-informazioni responsabilmente e solo su sistemi per i quali hai autorizzazione.
-Nessuna responsabilità per usi impropri.
+## ----[ 0x05 ] NOTE PERSONALI
 
+Focus su chiarezza operativa e rigore. Preferenza per spiegare le cause profonde, documentare gli assunti e rendere la catena d’attacco ripetibile.
 
-----[ 0x06 ]  CREDITS & CONTATTI
--------------------------------------------------------------------------------
-Autore:    NoFlyFre
-GitHub:    https://github.com/NoFlyFre
+## ----[ 0x06 ] DISCLAIMER
 
+Materiale a scopo educativo ed ethical hacking. Usa le informazioni solo su sistemi per cui hai autorizzazione. L’autore declina ogni responsabilità per usi impropri.
 
-----[ 0x07 ]  TAG / KEYWORDS
--------------------------------------------------------------------------------
-#security  #htb  #walkthrough  #pentest  #NoFlyFre  #hacking  #writeup
-#privesc   #web  #rce  #lfi  #docker  #grafana  #js2py  #backup
+## ----[ 0x07 ] CREDITS & CONTATTI
 
+- Autore: NoFlyFre
+- GitHub: https://github.com/NoFlyFre
 
-----[ 0x08 ]  LINGUA
--------------------------------------------------------------------------------
-🇮🇹  ITA (Italiano)
+## ----[ 0x08 ] LINGUA
 
+🇮🇹 Italiano
 
-===============================================================================
-            .: Knowledge, Skillz, Root :.    .: Stay curious! :.
-===============================================================================
-```
+## ----[ TAG / KEYWORDS ]
+
+`#security` `#htb` `#walkthrough` `#pentest` `#hacking` `#writeup` `#privesc` `#web` `#rce` `#lfi` `#docker` `#grafana` `#js2py` `#backup`
+
+<sub>Last update: 25/11/2025</sub>
